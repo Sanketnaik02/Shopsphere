@@ -1,0 +1,12 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Phase 1: no models yet.
+// The ShopSphere schema (users, products, cart, orders, wishlist, ...)
+// will be designed and added in later phases.
