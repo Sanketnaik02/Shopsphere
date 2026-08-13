@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Phase 1: no models yet.
-// The ShopSphere schema (users, products, cart, orders, wishlist, ...)
-// will be designed and added in later phases.
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}

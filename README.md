@@ -21,14 +21,14 @@ repository.
 
 ## Current Phase
 
-**Phase 1 — Foundation.**
+**Phase 2 — Authentication.**
 
-Planned roadmap:
+Completed road map:
 
 | Phase | Scope |
 | --- | --- |
-| 1 | Foundation (current) |
-| 2 | Authentication |
+| 1 | Foundation |
+| 2 | Authentication (current) |
 | 3 | Products |
 | 4 | Cart |
 | 5 | Wishlist |
@@ -40,11 +40,11 @@ Planned roadmap:
 
 | Layer | Technology |
 | --- | --- |
-| Frontend | React, Vite, TypeScript, Tailwind CSS |
+| Frontend | React, Vite, TypeScript, Tailwind CSS, React Router |
 | Backend | Node.js, Express, TypeScript |
 | Database | PostgreSQL, Prisma ORM |
-| Validation | Zod (later phases) |
-| Authentication | JWT (later phases) |
+| Validation | Zod |
+| Authentication | JSON Web Tokens (JWT), bcryptjs |
 | API | REST / JSON |
 | API docs | Swagger / OpenAPI (later phases) |
 
@@ -57,15 +57,18 @@ shopsphere/
 ├── backend/           Node.js + Express + TypeScript API
 │   ├── src/
 │   │   ├── config/    Environment configuration
-│   │   ├── controllers/  Request handlers
-│   │   ├── middleware/   Express middleware (CORS, error handling, ...)
+│   │   ├── controllers/  Request handlers (auth, health)
+│   │   ├── middleware/   Express middleware (validation, auth, error handling)
 │   │   ├── routes/       API route definitions
-│   │   ├── services/     Business logic layer
-│   │   ├── utils/        Shared helpers (ApiError, asyncHandler, ...)
+│   │   ├── services/     Business logic layer (auth, health)
+│   │   ├── lib/          Shared infrastructure (Prisma client)
+│   │   ├── types/        Shared types (auth user, JWT payload, Express types)
+│   │   ├── validators/   Zod request schemas
+│   │   ├── utils/        Shared helpers (ApiError, asyncHandler, JWT, password)
 │   │   ├── app.ts        Express app assembly
 │   │   └── server.ts     Server bootstrap
-│   └── prisma/        Prisma schema (PostgreSQL)
-├── database/          Database-related notes/config (schema designed in later phases)
+│   └── prisma/        Prisma schema + migrations + seed
+├── database/          Database-related notes/config
 ├── docs/              Phase notes and decisions
 ├── .env.example       Environment variable template
 └── package.json       Root scripts (dev/build)
@@ -106,11 +109,25 @@ secrets. Required placeholders are in `.env.example`:
 DATABASE_URL=
 PORT=
 JWT_SECRET=
+JWT_EXPIRES_IN=
 FRONTEND_URL=
 API_BASE_URL=
 ```
 
-### 3. Start the backend
+### 3. Prepare the database
+
+Apply migrations and seed demo users:
+
+```bash
+npm run migrate --prefix backend
+npm run prisma:seed --prefix backend
+```
+
+`npm run migrate --prefix backend` is `prisma migrate dev` (creates and applies
+migrations). The seed inserts the demo admin and customer users (see
+[Demo credentials](#demo-credentials)).
+
+### 4. Start the backend
 
 ```bash
 npm run dev --prefix backend
@@ -118,7 +135,7 @@ npm run dev --prefix backend
 
 The API runs at http://localhost:4000 by default.
 
-### 4. Start the frontend
+### 5. Start the frontend
 
 ```bash
 npm run dev --prefix frontend
@@ -156,6 +173,97 @@ Expected response — HTTP 200:
 ```
 
 This endpoint is used as a stable baseline for later API testing.
+
+## Auth API
+
+All responses use a consistent envelope:
+
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+Errors:
+
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "message": "Password must be at least 8 characters",
+  "errorCode": "VALIDATION_ERROR"
+}
+```
+
+### Register
+
+```
+POST /api/auth/register
+```
+
+Body:
+
+```json
+{
+  "name": "Sanket",
+  "email": "sanket@example.com",
+  "password": "Password@123"
+}
+```
+
+- Valid — `201 Created`, returns `{ user, token }`.
+- Duplicate email — `409 Conflict` (`EMAIL_TAKEN`).
+- Validation failure — `400 Bad Request` (`VALIDATION_ERROR`).
+
+### Login
+
+```
+POST /api/auth/login
+```
+
+Body:
+
+```json
+{
+  "email": "sanket@example.com",
+  "password": "Password@123"
+}
+```
+
+- Valid — `200 OK`, returns `{ user, token }`.
+- Bad credentials — `401 Unauthorized` (`INVALID_CREDENTIALS`).
+
+### Current user
+
+```
+GET /api/auth/me
+Authorization: Bearer <token>
+```
+
+- Valid token — `200 OK`, returns `{ user }`.
+- Missing/invalid/expired token — `401 Unauthorized`.
+
+### Logout
+
+```
+POST /api/auth/logout
+```
+
+JWTs are stateless; logout is handled client-side by discarding the token. The
+endpoint returns `200 OK` for API consistency.
+
+Role protection is available via `requireRole('ADMIN' | 'CUSTOMER')` middleware —
+used by admin features in later phases.
+
+## Demo credentials
+
+Local development only (seeded into the database, password hashes stored):
+
+| Role | Name | Email | Password |
+| --- | --- | --- | --- |
+| Admin | ShopSphere Admin | `admin@shopsphere.local` | `Admin@12345` |
+| Customer | Demo Customer | `customer@shopsphere.local` | `Customer@12345` |
 
 ## Development Rules
 

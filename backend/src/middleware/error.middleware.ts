@@ -15,6 +15,7 @@ export const errorHandler = (
   const isApiError = err instanceof ApiError
   const statusCode = isApiError ? err.statusCode : 500
   const message = isApiError ? err.message : 'Internal server error'
+  const errorCode = isApiError ? err.errorCode : 'INTERNAL_ERROR'
 
   if (env.nodeEnv !== 'test') {
     console.error(err)
@@ -24,5 +25,6 @@ export const errorHandler = (
     success: false,
     statusCode,
     message,
+    errorCode,
   })
 }
