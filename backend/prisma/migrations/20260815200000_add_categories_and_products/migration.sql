@@ -23,9 +23,9 @@ CREATE TABLE "products" (
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "price" INTEGER NOT NULL DEFAULT 0,
-    "categoryId" TEXT,
-    "brand" TEXT,
+    "price" INTEGER NOT NULL,
+    "categoryId" TEXT NOT NULL,
+    "brand" TEXT NOT NULL,
     "imageUrl" TEXT,
     "stock" INTEGER NOT NULL DEFAULT 0,
     "rating" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
@@ -44,4 +44,4 @@ CREATE UNIQUE INDEX "products_slug_key" ON "products"("slug");
 
 -- AddForeignKey
 ALTER TABLE "products"
-    ADD CONSTRAINT "products_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+    ADD CONSTRAINT "products_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

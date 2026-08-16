@@ -1,8 +1,46 @@
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prismaClient = new PrismaClient()
 
+const SALT_ROUNDS = 10
+
+const seedUsers = [
+  {
+    name: 'ShopSphere Admin',
+    email: 'admin@shopsphere.local',
+    password: 'Admin@12345',
+    role: 'ADMIN' as const,
+  },
+  {
+    name: 'Demo Customer',
+    email: 'customer@shopsphere.local',
+    password: 'Customer@12345',
+    role: 'CUSTOMER' as const,
+  },
+]
+
 async function main() {
+  // Seed users idempotently - create or update by unique email
+  for (const seed of seedUsers) {
+    const passwordHash = await bcrypt.hash(seed.password, SALT_ROUNDS)
+    const user = await prismaClient.user.upsert({
+      where: { email: seed.email },
+      update: {
+        name: seed.name,
+        passwordHash,
+        role: seed.role,
+      },
+      create: {
+        name: seed.name,
+        email: seed.email,
+        passwordHash,
+        role: seed.role,
+      },
+    })
+    console.log(`Seeded user: ${user.email} (${user.role})`)
+  }
+
   // Seed categories idempotently - create or update, and capture IDs
   const categoryNames = ['Electronics', 'Mobiles', 'Laptops', 'Accessories', 'Home Appliances', 'Gaming']
   const categoryMap: Record<string, string> = {}
