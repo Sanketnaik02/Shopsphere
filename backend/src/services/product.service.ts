@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma'
 import type { Request, Response } from 'express'
 import { ApiError } from '../utils/ApiError'
+import { PRODUCT_LIST_DEFAULT_PAGE, PRODUCT_LIST_DEFAULT_LIMIT, PRODUCT_LIST_MAX_LIMIT } from '../validators/product.validators'
 
 type ProductListItem = {
   id: string
@@ -22,6 +23,15 @@ type ProductDetail = ProductListItem & {
   updatedAt: Date
 }
 
+type Pagination = {
+  page: number
+  limit: number
+  totalItems: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
 export async function getActiveProducts(
   searchTerm?: string,
   categoryId?: string,
@@ -29,8 +39,10 @@ export async function getActiveProducts(
   maxPrice?: number,
   inStock?: string,
   sortBy?: string,
-  sortOrder?: string
-): Promise<ProductListItem[]> {
+  sortOrder?: string,
+  page: number = PRODUCT_LIST_DEFAULT_PAGE,
+  limit: number = PRODUCT_LIST_DEFAULT_LIMIT
+): Promise<{ items: ProductListItem[]; pagination: Pagination }> {
   const where: any = {}
   where.isActive = true
 
@@ -96,45 +108,81 @@ export async function getActiveProducts(
     desc: 'desc',
   }
 
-  let orderBy: any = {}
+  let primarySortField: string
+  let primarySortDirection: string
 
   if (sortBy) {
     if (!(sortBy in validSortBy)) {
       throw new ApiError(400, 'Invalid sort field: ' + sortBy, true, 'INVALID_SORT_BY')
     }
+    primarySortField = validSortBy[sortBy]
     if (sortOrder) {
       if (!(sortOrder in validSortOrder)) {
         throw new ApiError(400, 'Invalid sort order: ' + sortOrder, true, 'INVALID_SORT_ORDER')
       }
-      orderBy = { [validSortBy[sortBy]]: validSortOrder[sortOrder] }
+      primarySortDirection = validSortOrder[sortOrder]
     } else {
-      orderBy = { [validSortBy[sortBy]]: 'asc' }
+      primarySortDirection = 'asc'
     }
   } else if (sortOrder) {
     throw new ApiError(400, 'sortOrder requires sortBy', true, 'SORT_BY_REQUIRED')
   } else {
-    orderBy = { name: 'asc' }
+    primarySortField = 'name'
+    primarySortDirection = 'asc'
   }
 
-  const products = await prisma.product.findMany({
-    where,
-    include: { category: { select: { name: true, slug: true } } },
-    orderBy,
-  })
-  return products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    description: p.description,
-    price: p.price,
-    categoryName: p.category ? p.category.name : null,
-    categorySlug: p.category ? p.category.slug : null,
-    brand: p.brand,
-    imageUrl: p.imageUrl,
-    stock: p.stock,
-    rating: p.rating,
-    isActive: p.isActive,
-  }))
+  if (typeof page !== 'number' || !Number.isInteger(page) || page < 1) {
+    throw new ApiError(400, 'page must be an integer >= 1', true, 'INVALID_PAGE')
+  }
+  if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > PRODUCT_LIST_MAX_LIMIT) {
+    throw new ApiError(400, `limit must be an integer between 1 and ${PRODUCT_LIST_MAX_LIMIT}`, true, 'INVALID_LIMIT')
+  }
+
+  const skip = (page - 1) * limit
+  const take = limit
+
+  // Secondary ordering by id keeps pagination deterministic across identical sort values
+  const orderBy: any = [{ [primarySortField]: primarySortDirection }, { id: 'asc' }]
+
+  const [totalItems, products] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      include: { category: { select: { name: true, slug: true } } },
+      orderBy,
+      skip,
+      take,
+    }),
+  ])
+
+  const totalPages = Math.ceil(totalItems / limit)
+  const hasNextPage = page < totalPages
+  const hasPreviousPage = page > 1
+
+  return {
+    items: products.map((p) => ({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      description: p.description,
+      price: p.price,
+      categoryName: p.category ? p.category.name : null,
+      categorySlug: p.category ? p.category.slug : null,
+      brand: p.brand,
+      imageUrl: p.imageUrl,
+      stock: p.stock,
+      rating: p.rating,
+      isActive: p.isActive,
+    })),
+    pagination: {
+      page,
+      limit,
+      totalItems,
+      totalPages,
+      hasNextPage,
+      hasPreviousPage,
+    },
+  }
 }
 
 export async function getProductById(id: string) {

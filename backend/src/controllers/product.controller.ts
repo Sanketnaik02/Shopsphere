@@ -1,7 +1,7 @@
 import { type Request, type Response } from 'express'
 import { asyncHandler } from '../utils/asyncHandler'
 import { getActiveProducts, getProductById, createProduct, updateProduct, softDeleteProduct } from '../services/product.service'
-import { productCreateSchema, productUpdateSchema } from '../validators/product.validators'
+import { productCreateSchema, productUpdateSchema, PRODUCT_LIST_DEFAULT_PAGE, PRODUCT_LIST_DEFAULT_LIMIT } from '../validators/product.validators'
 import { ApiError } from '../utils/ApiError'
 
 export const listProducts = asyncHandler(async (req: Request, res: Response) => {
@@ -16,17 +16,21 @@ export const listProducts = asyncHandler(async (req: Request, res: Response) => 
   const inStock = req.query.inStock as string | undefined
   const sortBy = req.query.sortBy as string | undefined
   const sortOrder = req.query.sortOrder as string | undefined
+  const page = req.query.page ? Number(req.query.page) : PRODUCT_LIST_DEFAULT_PAGE
+  const limit = req.query.limit ? Number(req.query.limit) : PRODUCT_LIST_DEFAULT_LIMIT
 
-  const products = await getActiveProducts(
+  const result = await getActiveProducts(
     searchTerm,
     categoryId,
     minPrice,
     maxPrice,
     inStock,
     sortBy,
-    sortOrder
+    sortOrder,
+    page,
+    limit
   )
-  res.status(200).json({ success: true, data: { items: products } })
+  res.status(200).json({ success: true, data: result })
 })
 
 export const getProduct = asyncHandler(async (req: Request, res: Response) => {

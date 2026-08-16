@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+export const PRODUCT_LIST_DEFAULT_PAGE = 1
+export const PRODUCT_LIST_DEFAULT_LIMIT = 10
+export const PRODUCT_LIST_MAX_LIMIT = 100
+
 export const productCreateSchema = z.object({
   name: z
     .string({ message: 'Name is required' })
