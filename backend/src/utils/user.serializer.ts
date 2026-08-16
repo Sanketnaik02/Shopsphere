@@ -3,7 +3,7 @@ import type { PublicUser } from '../types/auth'
 
 export const toPublicUser = (user: User): PublicUser => ({
   id: user.id,
-  name: user.name,
+  name: user.name ?? '',
   email: user.email,
   role: user.role,
 })

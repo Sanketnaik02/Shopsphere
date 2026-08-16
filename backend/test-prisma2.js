@@ -1,0 +1,7 @@
+const { PrismaClient } = require('@prisma/client')
+const p = new PrismaClient()
+console.log('Keys:', Object.keys(p).slice(0, 20))
+console.log('$connect type:', typeof p.\$connect)
+console.log('user type:', typeof p.user)
+console.log('product type:', typeof p.product)
+console.log('category type:', typeof p.category)
