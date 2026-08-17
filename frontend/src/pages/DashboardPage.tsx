@@ -1,48 +1,17 @@
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/use-auth'
+import { Navbar } from '../components/Navbar'
 
 export function DashboardPage() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth()
 
   if (!user) {
     return <Navigate to="/login" replace />
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/', { replace: true })
-  }
-
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
-      <header className="border-b border-slate-200 bg-white">
-        <nav
-          className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4"
-          aria-label="Main navigation"
-        >
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 font-bold text-white"
-              aria-hidden="true"
-            >
-              S
-            </span>
-            <span className="text-lg font-semibold tracking-tight">ShopSphere</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-800">
-              {user.role}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Log out
-            </button>
-          </div>
-        </nav>
-      </header>
+      <Navbar />
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 py-12">
         <h1 className="text-3xl font-bold tracking-tight">Welcome to ShopSphere</h1>
