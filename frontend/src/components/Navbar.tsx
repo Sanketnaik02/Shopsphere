@@ -12,8 +12,9 @@ export function Navbar() {
 
   const isHomeActive = pathname === '/'
   const isProductsActive = pathname === '/products' || pathname.startsWith('/products/')
-  const isCartActive = pathname.startsWith('/cart')
+  const isCartActive = pathname.startsWith('/cart') || pathname.startsWith('/checkout')
   const isWishlistActive = pathname.startsWith('/wishlist')
+  const isOrdersActive = pathname === '/orders' || pathname.startsWith('/orders/')
   const isDashboardActive = pathname.startsWith('/dashboard')
   const cartCount = cart?.totalQuantity ?? 0
   const wishlistCount = wishlist?.totalItems ?? 0
@@ -92,13 +93,22 @@ export function Navbar() {
             ) : null}
           </Link>
           {user ? (
-            <Link
-              to="/dashboard"
-              aria-current={isDashboardActive ? 'page' : undefined}
-              className={navItemClass(isDashboardActive)}
-            >
-              Dashboard
-            </Link>
+            <>
+              <Link
+                to="/orders"
+                aria-current={isOrdersActive ? 'page' : undefined}
+                className={navItemClass(isOrdersActive)}
+              >
+                Orders
+              </Link>
+              <Link
+                to="/dashboard"
+                aria-current={isDashboardActive ? 'page' : undefined}
+                className={navItemClass(isDashboardActive)}
+              >
+                Dashboard
+              </Link>
+            </>
           ) : null}
         </div>
 

@@ -11,6 +11,9 @@ import { ProductsPage } from './pages/ProductsPage'
 import { ProductDetailsPage } from './pages/ProductDetailsPage'
 import { CartPage } from './pages/CartPage'
 import { WishlistPage } from './pages/WishlistPage'
+import { CheckoutPage } from './pages/CheckoutPage'
+import { OrdersPage } from './pages/OrdersPage'
+import { OrderDetailsPage } from './pages/OrderDetailsPage'
 
 function App() {
   return (
@@ -28,6 +31,9 @@ function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/orders/:id" element={<OrderDetailsPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

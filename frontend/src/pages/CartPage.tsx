@@ -201,16 +201,13 @@ function OrderSummary({
           </dd>
         </div>
       </dl>
-      <button
-        type="button"
-        disabled
-        aria-disabled="true"
-        title="Checkout coming soon"
-        className="mt-6 w-full cursor-not-allowed rounded-lg bg-slate-300 px-4 py-3 text-sm font-semibold text-slate-500"
+      <Link
+        to="/checkout"
+        data-testid="proceed-to-checkout"
+        className="mt-6 block w-full rounded-lg bg-indigo-600 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2"
       >
         Proceed to Checkout
-        <span className="block text-xs font-normal">Coming soon</span>
-      </button>
+      </Link>
       <button
         type="button"
         data-testid="clear-cart"

@@ -12,6 +12,14 @@ enum Role {
   ADMIN
 }
 
+enum ORDER_STATUS {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 model User {
   id          String   @id @default(uuid())
   name        String?
@@ -23,6 +31,8 @@ model User {
 
   cart        Cart?
   wishlist    Wishlist?
+  addresses   Address[]
+  orders      Order[]
 
   @@map("users")
 }
@@ -60,6 +70,7 @@ model Product {
 
   cartItems   CartItem[]
   wishlistItems WishlistItem[]
+  orderItems  OrderItem[]
 
   @@map("products")
 }
@@ -110,4 +121,71 @@ model WishlistItem {
 
   @@unique([wishlistId, productId])
   @@map("wishlist_items")
+}
+
+model Address {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  postalCode   String
+  country      String
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders       Order[]
+
+  @@index([userId])
+  @@index([userId, isDefault])
+  @@map("addresses")
+}
+
+model Order {
+  id                 String      @id @default(uuid())
+  userId             String
+  user               User        @relation(fields: [userId], references: [id])
+  addressId          String?
+  address            Address?    @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  status             ORDER_STATUS @default(CONFIRMED)
+  subtotal           Int
+  shippingAmount     Int
+  totalAmount        Int
+  shippingFullName     String
+  shippingPhone        String
+  shippingAddressLine1 String
+  shippingAddressLine2 String?
+  shippingCity         String
+  shippingState        String
+  shippingPostalCode   String
+  shippingCountry      String
+  items              OrderItem[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@index([addressId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String
+  productBrand String
+  unitPrice   Int
+  quantity    Int
+  subtotal    Int
+
+  @@index([orderId])
+  @@map("order_items")
 }
