@@ -16,6 +16,10 @@ import { CheckoutPage } from './pages/CheckoutPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { OrderDetailsPage } from './pages/OrderDetailsPage'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
+import { AdminProductsPage } from './pages/AdminProductsPage'
+import { AdminCategoriesPage } from './pages/AdminCategoriesPage'
+import { AdminOrdersPage } from './pages/AdminOrdersPage'
+import { AdminInventoryPage } from './pages/AdminInventoryPage'
 import { AccessDeniedPage } from './pages/AccessDeniedPage'
 
 function App() {
@@ -41,6 +45,10 @@ function App() {
               </Route>
               <Route element={<AdminRoute />}>
                 <Route path="/admin" element={<AdminDashboardPage />} />
+                <Route path="/admin/products" element={<AdminProductsPage />} />
+                <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+                <Route path="/admin/orders" element={<AdminOrdersPage />} />
+                <Route path="/admin/inventory" element={<AdminInventoryPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

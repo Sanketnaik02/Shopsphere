@@ -9,6 +9,7 @@ interface AdminModule {
   icon: React.ReactNode
   testId: string
   comingSoon: boolean
+  backendLimitation?: boolean
 }
 
 function IconProducts() {
@@ -97,7 +98,7 @@ const adminModules: AdminModule[] = [
     action: 'Manage Products',
     icon: <IconProducts />,
     testId: 'admin-products-link',
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     title: 'Categories',
@@ -106,7 +107,7 @@ const adminModules: AdminModule[] = [
     action: 'Manage Categories',
     icon: <IconCategories />,
     testId: 'admin-categories-link',
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     title: 'Orders',
@@ -115,7 +116,8 @@ const adminModules: AdminModule[] = [
     action: 'Manage Orders',
     icon: <IconOrders />,
     testId: 'admin-orders-link',
-    comingSoon: true,
+    comingSoon: false,
+    backendLimitation: true,
   },
   {
     title: 'Inventory',
@@ -124,7 +126,7 @@ const adminModules: AdminModule[] = [
     action: 'Manage Inventory',
     icon: <IconInventory />,
     testId: 'admin-inventory-link',
-    comingSoon: true,
+    comingSoon: false,
   },
 ]
 
@@ -179,6 +181,14 @@ export function AdminDashboardPage() {
                   >
                     {module.action} — Coming Soon
                   </button>
+                ) : module.backendLimitation ? (
+                  <Link
+                    to={module.href}
+                    data-testid={module.testId}
+                    className="mt-6 inline-flex items-center justify-center rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
+                  >
+                    {module.action} — Backend Required
+                  </Link>
                 ) : (
                   <Link
                     to={module.href}
