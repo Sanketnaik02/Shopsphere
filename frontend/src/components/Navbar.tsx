@@ -16,6 +16,7 @@ export function Navbar() {
   const isWishlistActive = pathname.startsWith('/wishlist')
   const isOrdersActive = pathname === '/orders' || pathname.startsWith('/orders/')
   const isDashboardActive = pathname.startsWith('/dashboard')
+  const isAdminActive = pathname.startsWith('/admin')
   const cartCount = cart?.totalQuantity ?? 0
   const wishlistCount = wishlist?.totalItems ?? 0
 
@@ -108,6 +109,16 @@ export function Navbar() {
               >
                 Dashboard
               </Link>
+              {user.role === 'ADMIN' && (
+                <Link
+                  to="/admin"
+                  aria-current={isAdminActive ? 'page' : undefined}
+                  className={navItemClass(isAdminActive)}
+                  data-testid="admin-nav-link"
+                >
+                  Admin
+                </Link>
+              )}
             </>
           ) : null}
         </div>

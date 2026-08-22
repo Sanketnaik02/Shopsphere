@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthProvider'
 import { CartProvider } from './context/CartProvider'
 import { WishlistProvider } from './context/WishlistProvider'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { AdminRoute } from './components/AdminRoute'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
@@ -14,6 +15,8 @@ import { WishlistPage } from './pages/WishlistPage'
 import { CheckoutPage } from './pages/CheckoutPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { OrderDetailsPage } from './pages/OrderDetailsPage'
+import { AdminDashboardPage } from './pages/AdminDashboardPage'
+import { AccessDeniedPage } from './pages/AccessDeniedPage'
 
 function App() {
   return (
@@ -27,6 +30,7 @@ function App() {
               <Route path="/products/:id" element={<ProductDetailsPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/access-denied" element={<AccessDeniedPage />} />
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/cart" element={<CartPage />} />
@@ -34,6 +38,9 @@ function App() {
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/orders/:id" element={<OrderDetailsPage />} />
+              </Route>
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminDashboardPage />} />
               </Route>
             </Routes>
           </BrowserRouter>
